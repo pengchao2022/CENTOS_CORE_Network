@@ -1,1 +1,4 @@
 sudo yum -y groups install "GNOME Desktop"
+
+
+startx
