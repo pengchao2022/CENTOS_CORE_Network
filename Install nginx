@@ -1,0 +1,40 @@
+#install gcc 
+
+sudo yum install -y gcc
+
+sudo yum install -y zlib zlib-devel
+
+sudo yum install -y pcre pcre-devel
+
+#解压nginx包 
+
+sudo tar zxvf nginx-1.24.0.tar.gz 
+
+sudo ./configure --prefix=/usr/local/nginx
+
+sudo make
+
+sudo make install
+
+cd /usr/local/nginx
+
+sudo ./nginx
+
+ps -ef | grep nginx
+
+#关闭防火墙
+
+sudo systemctl stop firewalld.service
+
+#禁用防火墙
+
+sudo systemctl disable firewalld.service
+
+#放行端口
+
+sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
+
+
+
+
+
