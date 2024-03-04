@@ -1,0 +1,5 @@
+CentOS 安装完成后 没有网络连接
+
+需要编辑 /etc/sysconfig/network-scripts/ifcfg-ens33
+
+把ONBOOT=NO 改为 YES 然后重启即可 
