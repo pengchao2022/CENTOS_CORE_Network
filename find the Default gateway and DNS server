@@ -1,0 +1,8 @@
+Find the default gateway:
+
+ip route | grep default
+
+
+Find the DNS server:
+
+cat /etc/resolv.conf
