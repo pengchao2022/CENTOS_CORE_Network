@@ -1,0 +1,16 @@
+对于没有图形化的 centos core 系统，可以使用 network manager command line 来设置网络
+
+nmcli connection show ---------- 显示当前连接
+
+nmcli connection delete ens33  ------ 删除ens33 链接
+
+nmcli connection add type ethernet ipv4.method manual con-name ens33 ifname ens33 ipv4.addresses 192.168.19.210/24 ipv4.gateway 192.168.19.2 ipv4.dns 114.114.114.114 connection.autoconnect yes
+
+------- 设置静态的IP 地址 ，网关， DNS 等
+
+nmcli connection down ens33 ------ 关闭 ens33 网卡
+
+nmcli connection up ens33   ------ 开启 ens33 网卡
+
+systemctl restart NetworkManager  ------重启 network manager 服务
+
