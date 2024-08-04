@@ -1,0 +1,113 @@
+
+
+1, Difference between bond and teaming
+
+Bond always use two interfaces but teaming can blind more than 8 interfaces for a large environment
+
+
+2, Linux bond mode 
+
+active-backup  ------------------            mode 1   ------ no need to config on Network Switch
+
+802.3ad     ------ -------------             mode 4   ------ need to config LACP on  Network Switch
+
+--------------------------------------------------------------------------------------------------------------
+
+step 1 , check the NetworkManager status:
+
+[ansible@ansible01 ~]$ sudo systemctl status NetworkManager
+[sudo] password for ansible:
+● NetworkManager.service - Network Manager
+     Loaded: loaded (/usr/lib/systemd/system/NetworkManager.service; enabled; preset: enabled)
+     Active: active (running) since Sun 2024-08-04 09:14:47 EDT; 15min ago
+       Docs: man:NetworkManager(8)
+   Main PID: 1004 (NetworkManager)
+      Tasks: 3 (limit: 74517)
+     Memory: 10.5M
+        CPU: 191ms
+
+[ansible@ansible01 ~]$ sudo systemctl enable NetworkManager
+
+
+step 2, create a new bond connection
+
+$ sudo nmcli connection add type bond ifname bond0 mode active-backup
+
+step 3, Add Member Interfaces
+
+$ sudo nmcli connection add type ethernet ifname ens192 master bond0
+
+$ sudo nmcli connection add type ethernet ifname ens224 master bond0
+
+step 4, verify the newly created network connection
+[ansible@ansible01 ~]$ nmcli connection show
+NAME               UUID                                  TYPE      DEVICE
+bond-bond0         badfe963-9b5b-4dde-90a1-89ae0488b1bc  bond      bond0
+bond-slave-ens192  8fc62717-b2cf-4167-abc7-24009e2f6243  ethernet  ens192
+bond-slave-ens224  47720db9-34db-4f24-bb67-6de441df5b9e  ethernet  ens224
+lo                 ff1fa327-e70e-49a3-99ab-f3e4f0aec492  loopback  lo
+ens192             7d82df32-23d2-3214-b337-59664c70de83  ethernet  --
+ens224             f7e94dfa-5e13-3bd6-8a05-2b5a467d2eca  ethernet  --
+
+step 5, using active-backup mode, you can specify the primary interface:
+
+$ sudo nmcli connection modify bond-bond0 primary ens192
+
+step 6, Configure IP Address and DNS Settings
+
+$ sudo nmcli connection modify bond-bond0 ipv4.method manual ipv4.addresses "192.168.1.10/24" ipv4.gateway "192.168.1.101" ipv4.dns "8.8.8.8,8.8.4.4"
+
+step 7, Activate the Bond Connection
+
+$ sudo nmcli connection up bond-bond0
+
+step 8, Verify the Configuration
+
+$ sudo nmcli connection show
+
+step 9, Check bonding status
+
+
+[ansible@ansible01 ~]$ cat /proc/net/bonding/bond0
+Ethernet Channel Bonding Driver: v5.14.0-427.13.1.el9_4.x86_64
+
+Bonding Mode: fault-tolerance (active-backup)
+Primary Slave: ens192 (primary_reselect always)
+Currently Active Slave: ens192
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+Peer Notification Delay (ms): 0
+
+Slave Interface: ens192
+MII Status: up
+Speed: 10000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 00:50:56:be:37:f1
+Slave queue ID: 0
+
+Slave Interface: ens224
+MII Status: up
+Speed: 10000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 00:50:56:be:b9:ec
+Slave queue ID: 0
+[ansible@ansible01 ~]$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
